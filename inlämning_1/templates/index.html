@@ -78,6 +78,9 @@
       <button id="t7">Task 7</button>
     </div>
 
+    <h1>School Clusters</h1>
+    <div id="clusters"></div>
+
     <div id="sidebar"><h1>Sidebar</h1></div>
 
     <script>
@@ -109,8 +112,8 @@
         document.getElementById("t3").addEventListener("click", task3);
         document.getElementById("t4").addEventListener("click", task4);
         document.getElementById("t5").addEventListener("click", task5);
-        // document.getElementById("t6").addEventListener("click", task6);
-        // document.getElementById("t7").addEventListener("click", task7);
+        document.getElementById("t6").addEventListener("click", task6);
+        document.getElementById("t7").addEventListener("click", task7);
 
         let polylineMeasure = L.control.polylineMeasure();
         let isPolylineMeasureAdded = false;
@@ -202,7 +205,6 @@
 
         function handleMarkerClick(marker, content) {
           if (lastClickedMarker === marker) {
-            // Toggle the sidebar visibility if the same marker is clicked again
             if (sidebar.isVisible()) {
               sidebar.hide();
             } else {
@@ -210,11 +212,9 @@
               sidebar.show();
             }
           } else {
-            // If a different marker is clicked, always show and update the content
             sidebar.setContent(content);
             sidebar.show();
           }
-          // Update the last clicked marker
           lastClickedMarker = marker;
         }
 
@@ -333,7 +333,7 @@
             }
           }
 
-          var color = overlaps[i] ? "yellow" : "red"; // Red if no overlap, yellow if overlap
+          var color = overlaps[i] ? "yellow" : "red"; 
           var bufferLayer = L.geoJSON(buffer, {
             style: {
               color: color,
@@ -376,10 +376,10 @@
           }
         }
 
-        let markers = L.markerClusterGroup();
+        let fuelMarkers = L.markerClusterGroup();
         let fuelDataExists = false;
 
-        function fuelData() {
+        function getFuelData() {
           if (fuelDataExists) return;
           fetch("{{ url_for('static', filename='fuel.geojson') }}")
             .then(function (response) {
@@ -406,7 +406,7 @@
                   markers.addLayer(marker);
                 },
               });
-              mymap.addLayer(markers);
+              mymap.addLayer(fuelMarkers);
               fuelDataExists = true;
             });
         }
@@ -419,9 +419,128 @@
 
             fuelStationsVisible = false;
           } else {
-            fuelData();
+            getFuelData();
             mymap.addLayer(markers);
             fuelStationsVisible = true;
+          }
+        }
+        const weatherChecks = {
+          Stockholm: [59.345975619120296, 18.064205537694214],
+          Uppsala: [59.873667333343136, 17.638209995978333],
+          Gävle: [60.675666610668536, 17.149357702338683],
+          Falun: [60.61664051976568, 15.630614618411661],
+          Borläne: [60.49635077825705, 15.436401947832758],
+        };
+
+        let weatherDataExists = false;
+        let markers = {}; 
+
+        function getWeather() {
+          if (weatherDataExists) return; 
+          Object.entries(weatherChecks).forEach(([city, coords]) => {
+            const [latitude, longitude] = coords;
+            const currentTempUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m`;
+            const forecastUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m&forecast_days=3`; // Specify days for forecast
+
+            Promise.all([
+              fetch(currentTempUrl).then((res) => res.json()),
+              fetch(forecastUrl).then((res) => res.json()),
+            ])
+              .then(([currentData, forecastData]) => {
+                const currentTemp =
+                  currentData.hourly && currentData.hourly.temperature_2m
+                    ? currentData.hourly.temperature_2m[0]
+                    : "No data";
+
+                let dailyAverages = {};
+                if (
+                  forecastData.hourly &&
+                  forecastData.hourly.temperature_2m &&
+                  forecastData.hourly.time
+                ) {
+                  const temperatures = forecastData.hourly.temperature_2m;
+                  const times = forecastData.hourly.time;
+                  temperatures.forEach((temp, index) => {
+                    const date = times[index].substring(0, 10);
+                    if (!dailyAverages[date]) {
+                      dailyAverages[date] = { sum: 0, count: 0 };
+                    }
+                    dailyAverages[date].sum += temp;
+                    dailyAverages[date].count++;
+                  });
+                }
+
+                let forecastMessage = `<b>${city}</b><br>Current Temperature: ${currentTemp} °C<br>`;
+                Object.keys(dailyAverages).forEach((date) => {
+                  const avgTemp = (
+                    dailyAverages[date].sum / dailyAverages[date].count
+                  ).toFixed(1);
+                  forecastMessage += `${date}: Average Temp: ${avgTemp} °C<br>`;
+                });
+
+                if (!markers[city]) {
+                  markers[city] = L.marker([latitude, longitude]).addTo(mymap);
+                  markers[city].bindPopup(forecastMessage);
+                }
+              })
+              .catch((error) =>
+                console.error(`Error fetching weather data for ${city}:`, error)
+              );
+          });
+          weatherDataExists = true;
+        }
+
+        let weatherVisible = false; 
+
+        function task6() {
+          if (weatherVisible) {
+            Object.keys(markers).forEach((city) => {
+              mymap.removeLayer(markers[city]);
+            });
+            weatherVisible = false;
+          } else {
+            getWeather();
+            weatherVisible = true;
+          }
+        }
+
+        var clusterIcon = L.icon({
+          iconUrl: "static/img/cluster.png",
+          iconSize: [24, 24],
+          iconAnchor: [12, 12],
+          popupAnchor: [0, -12],
+        });
+
+        let schoolMarkers = L.markerClusterGroup();
+        let schoolDataExists = false;
+
+        function loadSchools() {
+          if (schoolDataExists) return; 
+          fetch("/cluster")
+            .then((response) => response.json())
+            .then((data) => {
+              data.clusters.forEach((cluster) => {
+                var marker = L.marker([cluster.ycoord, cluster.xcoord], {
+                  icon: clusterIcon,
+                });
+                marker.bindPopup("Cluster: " + cluster.cluster);
+                schoolMarkers.addLayer(marker);
+              });
+              mymap.addLayer(schoolMarkers);
+              schoolDataExists = true;
+            });
+        }
+
+        let schoolsVisible = false;
+
+        function task7() {
+          if (schoolsVisible) {
+            mymap.removeLayer(schoolMarkers);
+            schoolsVisible = false;
+          } else {
+            loadSchools();
+            mymap.addLayer(schoolMarkers);
+            schoolsVisible = true;
           }
         }
       });
