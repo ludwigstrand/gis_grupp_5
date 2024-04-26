@@ -31,6 +31,7 @@
       rel="stylesheet"
       href="https://ppete2.github.io/Leaflet.PolylineMeasure/Leaflet.PolylineMeasure.css"
     />
+    <link rel="dist/leaflet" />
 
     <script src="{{ url_for('static', filename='src/leaflet-src.js') }}"></script>
     <script src="{{ url_for('static', filename='src/jquery-3.6.0.min.js') }}"></script>
@@ -43,6 +44,7 @@
     <script src="https://ppete2.github.io/Leaflet.PolylineMeasure/Leaflet.PolylineMeasure.js"></script>
     <script src="{{ url_for('static', filename='supermarket.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/@turf/turf@latest"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
 
     <style>
       #mapdiv {
@@ -106,7 +108,7 @@
         document.getElementById("t2").addEventListener("click", task2);
         document.getElementById("t3").addEventListener("click", task3);
         document.getElementById("t4").addEventListener("click", task4);
-        // document.getElementById("t5").addEventListener("click", task5);
+        document.getElementById("t5").addEventListener("click", task5);
         // document.getElementById("t6").addEventListener("click", task6);
         // document.getElementById("t7").addEventListener("click", task7);
 
@@ -354,16 +356,15 @@
           }
         }
 
-        var arlanda =
-              "{{ url_for('static', filename='img/arlanda.png') }}",
-            imageBounds = [
-              [59.668285383177675, 17.906131646938277],
-              [59.668155347981624, 17.984323406018582],
-              [59.62391148693897, 17.98208254574083],
-              [59.624131228284725, 17.90456296387735],
-            ];
-        var arlandaOverlay = L.imageOverlay(arlanda, imageBounds);; 
-        var isArlandaVisible = false; 
+        var arlanda = "{{ url_for('static', filename='img/arlanda.png') }}",
+          imageBounds = [
+            [59.668285383177675, 17.906131646938277],
+            [59.668155347981624, 17.984323406018582],
+            [59.62391148693897, 17.98208254574083],
+            [59.624131228284725, 17.90456296387735],
+          ];
+        var arlandaOverlay = L.imageOverlay(arlanda, imageBounds);
+        var isArlandaVisible = false;
 
         function task4() {
           if (isArlandaVisible) {
@@ -374,7 +375,50 @@
             isArlandaVisible = true;
           }
         }
-        
+
+        let markers = L.markerClusterGroup();
+
+        function fuelData () { fetch("{{ url_for('static', filename='fuel.geojson') }}")
+          .then(function (response) {
+            return response.json();
+          })
+          .then(function (data) {
+            L.geoJSON(data, {
+              onEachFeature: function (feature, layer) {
+                let marker = L.marker(
+                  [
+                    feature.geometry.coordinates[1],
+                    feature.geometry.coordinates[0],
+                  ],
+                  {
+                    title: feature.properties.name,
+                  }
+                ).bindPopup(
+                  "<h3>" +
+                    feature.properties.name +
+                    "</h3><p>" +
+                    feature.properties.brand_wiki +
+                    "</p>"
+                );
+                markers.addLayer(marker);
+              },
+            });
+            mymap.addLayer(markers);
+          });
+           }
+
+        let fuelStationsVisible = false;
+
+        function task5() {
+          if (fuelStationsVisible) {
+            mymap.removeLayer(markers);
+            fuelStationsVisible = false;
+          } else {
+            fuelData();
+            mymap.addLayer(markers);
+            fuelStationsVisible = true;
+          }
+        }
       });
     </script>
   </body>
