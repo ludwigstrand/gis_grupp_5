@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Webmapp 201</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='src/leaflet.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='src/css/bootstrap.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='src/plugins/L.Control.Zoomslider.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='src/plugins/L.Control.Sidebar.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='dist/MarkerCluster.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='dist/MarkerCluster.Default.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="https://ppete2.github.io/Leaflet.PolylineMeasure/Leaflet.PolylineMeasure.css"
+    />
+
+    <script src="{{ url_for('static', filename='src/leaflet-src.js') }}"></script>
+    <script src="{{ url_for('static', filename='src/jquery-3.6.0.min.js') }}"></script>
+    <script
+      src="{{ url_for('static', filename='src/turf.min.js') }}"
+      charset="utf-8"
+    ></script>
+    <script src="{{ url_for('static', filename='src/plugins/L.Control.Zoomslider.js') }}"></script>
+    <script src="{{ url_for('static', filename='src/plugins/L.Control.Sidebar.js') }}"></script>
+    <script src="https://ppete2.github.io/Leaflet.PolylineMeasure/Leaflet.PolylineMeasure.js"></script>
+    <script src="{{ url_for('static', filename='supermarket.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@latest"></script>
+
+    <style>
+      #mapdiv {
+        height: 100vh;
+      }
+
+      #side-bar {
+        position: absolute;
+        z-index: 1000;
+        background: rgba(255, 255, 255, 0.7);
+        padding: 10px;
+        right: 0;
+        top: 0;
+        margin: 10px;
+        border-radius: 10px;
+        min-height: 200px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="mapdiv" class="col-md-9"></div>
+
+    <div id="side-bar" class="col-md-3">
+      <h2>My Map</h2>
+      <button id="t1">Task 1</button>
+      <button id="t2">Task 2</button>
+      <button id="t3">Task 3</button>
+      <button id="t4">Task 4</button>
+      <button id="t5">Task 5</button>
+      <button id="t6">Task 6</button>
+      <button id="t7">Task 7</button>
+    </div>
+
+    <div id="sidebar"><h1>Sidebar</h1></div>
+
+    <script>
+      var mymap;
+      var lyrOSM;
+      var mrkCurrentLocation;
+      var ctlZoomslider;
+      var ctlSlidebar;
+      var sample = L.geoJson(sample);
+      var sample1 = L.geoJson(sample1);
+
+      $(document).ready(function () {
+        mymap = L.map("mapdiv", {
+          center: [60.668626389666734, 17.141998623027877],
+          zoom: 13,
+        });
+        lyrOSM = L.tileLayer(
+          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        );
+        mymap.addLayer(lyrOSM);
+
+        var sidebar = L.control.sidebar("sidebar", { position: "left" });
+        var lastClickedMarker = null;
+
+        mymap.addControl(sidebar);
+
+        document.getElementById("t1").addEventListener("click", task1);
+        document.getElementById("t2").addEventListener("click", task2);
+        document.getElementById("t3").addEventListener("click", task3);
+        document.getElementById("t4").addEventListener("click", task4);
+        // document.getElementById("t5").addEventListener("click", task5);
+        // document.getElementById("t6").addEventListener("click", task6);
+        // document.getElementById("t7").addEventListener("click", task7);
+
+        let polylineMeasure = L.control.polylineMeasure();
+        let isPolylineMeasureAdded = false;
+
+        let bockenPoint = L.marker([
+          60.67498198310049, 17.144243649215575,
+        ]).bindPopup(
+          "<h3>Gävlebocken</h3><img src= '{{ url_for('static', filename='img/gävlebocken.jpg') }}'width='150px'>"
+        );
+
+        var gävleHamn = [
+          [60.691218283964986, 17.223823322782778],
+          [60.69210948184755, 17.23040253844445],
+          [60.69591103487983, 17.227792398326784],
+          [60.696765870483915, 17.2320397746536],
+          [60.69862487656201, 17.229135615349065],
+          [60.69911499895204, 17.222898040046005],
+          [60.69996658774892, 17.221742676974145],
+          [60.697698671131036, 17.21452080847672],
+          [60.69909969551196, 17.212031785968293],
+          [60.69715133538378, 17.20444696416172],
+          [60.695806605469215, 17.205011225170068],
+          [60.695438124927364, 17.20394537657782],
+          [60.69581470623331, 17.20232046200624],
+          [60.69352411622336, 17.20021866956779],
+          [60.6936840722812, 17.199324223928755],
+          [60.69301050081185, 17.198280753957107],
+          [60.693145486827746, 17.197766445217923],
+          [60.692458716568495, 17.196963212441233],
+          [60.6909560549272, 17.197558443864637],
+          [60.69092941782475, 17.199464856226143],
+          [60.68873562892128, 17.19955786735096],
+          [60.68759435740327, 17.201720634830053],
+          [60.68824228333162, 17.207422055608447],
+          [60.68771710596769, 17.20771277790851],
+          [60.6872864812041, 17.205458364611616],
+          [60.68705602863477, 17.205766270501442],
+          [60.68814834447309, 17.214144667619422],
+          [60.688686133259495, 17.21295090788587],
+          [60.689003549476496, 17.209936753624305],
+          [60.69017540276556, 17.210507175451795],
+          [60.6893685171633, 17.215481091108728],
+          [60.69053199422703, 17.220168214068167],
+          [60.69553680186701, 17.21658387117691],
+          [60.69582642537597, 17.217665204977095],
+          [60.6954562825085, 17.218125631846533],
+          [60.69570380552713, 17.21870241425077],
+          [60.69519447911463, 17.21997816233747],
+          [60.69501262377145, 17.21962613192204],
+          [60.695294933502055, 17.21912041497737],
+          [60.69514282559004, 17.218750035422488],
+          [60.69489586874323, 17.218836053255956],
+          [60.69439634215166, 17.219409438893678],
+          [60.69447577205767, 17.22005675392427],
+          [60.694801590739246, 17.21995525088286],
+          [60.694953700265216, 17.22032563043868],
+          [60.694042483023566, 17.221517691789387],
+          [60.69302683404834, 17.222442575008444],
+          [60.69299230911466, 17.222099136388408],
+          [60.691218283964986, 17.223823322782778],
+        ];
+        var polygon = L.polygon(gävleHamn, { color: "red" }).bindPopup(
+          "<h3>Gävle Hamn</h3><img src= '{{ url_for('static', filename='img/gävlehamn.jpg') }}'width='150px'>"
+        );
+
+        function task1() {
+          if (isPolylineMeasureAdded) {
+            mymap.removeLayer(bockenPoint);
+            mymap.removeLayer(polygon);
+            mymap.removeControl(polylineMeasure);
+            isPolylineMeasureAdded = false;
+          } else {
+            bockenPoint.addTo(mymap);
+            polygon.addTo(mymap);
+            polylineMeasure.addTo(mymap);
+            isPolylineMeasureAdded = true;
+          }
+        }
+
+        let brynäsArena = L.marker([60.691140545548706, 17.132425589966566]);
+        let gävleSjukhus = L.marker([60.67817996669188, 17.118315342792286]);
+        let gävleKonserthus = L.marker([
+          60.672431953720704, 17.132893378900008,
+        ]);
+        let gasKlockorna = L.marker([60.678170770442996, 17.17833014678249]);
+        let gävleHemlingbyStuga = L.marker([
+          60.64981271475861, 17.16981137114647,
+        ]);
+
+        function handleMarkerClick(marker, content) {
+          if (lastClickedMarker === marker) {
+            // Toggle the sidebar visibility if the same marker is clicked again
+            if (sidebar.isVisible()) {
+              sidebar.hide();
+            } else {
+              sidebar.setContent(content);
+              sidebar.show();
+            }
+          } else {
+            // If a different marker is clicked, always show and update the content
+            sidebar.setContent(content);
+            sidebar.show();
+          }
+          // Update the last clicked marker
+          lastClickedMarker = marker;
+        }
+
+        brynäsArena.addEventListener("click", function () {
+          var content =
+            "<h1>Brynäs Arena</h1>" +
+            "<p><strong>Location:</strong> Gävle, Sweden</p>" +
+            "<p><strong>Description:</strong> Home of the Brynäs IF ice hockey club.</p>" +
+            "<img src='{{ url_for('static', filename='img/gävlearena.jpg') }}' width='250px'>";
+          handleMarkerClick(brynäsArena, content);
+        });
+        gävleSjukhus.addEventListener("click", function () {
+          var content =
+            "<h1>Gävle Sjukhus</h1>" +
+            "<p><strong>Location:</strong> Gävle, Sweden</p>" +
+            "<p><strong>Description:</strong> Gävle Hospital is a hospital in Gävle, Sweden.</p>" +
+            "<img src='{{ url_for('static', filename='img/gävlesjukhus.jpg') }}' width='250px'>";
+
+          handleMarkerClick(gävleSjukhus, content);
+        });
+        gävleKonserthus.addEventListener("click", function () {
+          var content =
+            "<h1>Gävle Konserthus</h1>" +
+            "<p><strong>Location:</strong> Gävle, Sweden</p>" +
+            "<p><strong>Description:</strong> Gävle Concert Hall is a concert hall in Gävle, Sweden.</p>" +
+            "<img src='{{ url_for('static', filename='img/gävlekonserthus.jpg') }}' width='250px'>";
+
+          handleMarkerClick(gävleKonserthus, content);
+        });
+        gasKlockorna.addEventListener("click", function () {
+          var content =
+            "<h1>Gävle Gasklockorna</h1>" +
+            "<p><strong>Location:</strong> Gävle, Sweden</p>" +
+            "<p><strong>Description:</strong> Gävle Gas Works is a former gasworks in Gävle, Sweden.</p>" +
+            "<img src='{{ url_for('static', filename='img/gävleklockorna.jpg') }}' width='250px'>";
+
+          handleMarkerClick(gasKlockorna, content);
+        });
+        gävleHemlingbyStuga.addEventListener("click", function () {
+          var content =
+            "<h1>Gävle Hemlingby Stugan</h1>" +
+            "<p><strong>Location:</strong> Gävle, Sweden</p>" +
+            "<p><strong>Description:</strong> Hemlingby is a district in Gävle, Sweden.</p>" +
+            "<img src='{{ url_for('static', filename='img/gävlehemlingbystuga.jpg') }}' width='250px'>";
+
+          handleMarkerClick(gävleHemlingbyStuga, content);
+        });
+
+        let isPolylineMeasureVisible = false;
+
+        let task2PolylineMeasure = L.control.polylineMeasure({
+          position: "topleft",
+          unit: "kilometres",
+          showBearings: true,
+          clearMeasurementsOnStop: false,
+          showClearControl: true,
+          showUnitControl: true,
+        });
+
+        function task2() {
+          if (isPolylineMeasureVisible) {
+            mymap.removeLayer(brynäsArena);
+            mymap.removeLayer(gävleSjukhus);
+            mymap.removeLayer(gävleKonserthus);
+            mymap.removeLayer(gasKlockorna);
+            mymap.removeLayer(gävleHemlingbyStuga);
+            task2PolylineMeasure._clearAllMeasurements();
+            mymap.removeControl(task2PolylineMeasure);
+            sidebar.hide();
+            isPolylineMeasureVisible = false;
+          } else {
+            brynäsArena.addTo(mymap);
+            gävleSjukhus.addTo(mymap);
+            gävleKonserthus.addTo(mymap);
+            gasKlockorna.addTo(mymap);
+            gävleHemlingbyStuga.addTo(mymap);
+            task2PolylineMeasure.addTo(mymap);
+            isPolylineMeasureVisible = true;
+
+            let coords = [
+              { lat: 60.691140545548706, lng: 17.132425589966566 },
+              { lat: 60.67817996669188, lng: 17.118315342792286 },
+              { lat: 60.672431953720704, lng: 17.132893378900008 },
+              { lat: 60.678170770442996, lng: 17.17833014678249 },
+              { lat: 60.64981271475861, lng: 17.16981137114647 },
+            ];
+            task2PolylineMeasure.seed([coords]);
+          }
+        }
+
+        var supermarkets = L.geoJson(supermarket, {
+          onEachFeature: function (feature, layer) {
+            layer.bindPopup(feature.properties.name);
+          },
+        });
+
+        var isSupermarketsVisible = false;
+
+        var s2 = supermarkets.toGeoJSON();
+
+        var bufferedLayers = [];
+
+        var overlaps = new Array(s2.features.length).fill(false);
+        s2.features.forEach((feature, i) => {
+          var buffer = turf.buffer(feature, 1, { units: "kilometers" });
+          for (let j = 0; j < s2.features.length; j++) {
+            if (i !== j) {
+              let otherBuffer = turf.buffer(s2.features[j], 1, {
+                units: "kilometers",
+              });
+              let intersection = turf.intersect(buffer, otherBuffer);
+              if (intersection) {
+                overlaps[i] = true;
+                overlaps[j] = true;
+              }
+            }
+          }
+
+          var color = overlaps[i] ? "yellow" : "red"; // Red if no overlap, yellow if overlap
+          var bufferLayer = L.geoJSON(buffer, {
+            style: {
+              color: color,
+              dashArray: "5,5",
+              fillOpacity: 0.1,
+            },
+          });
+          bufferedLayers.push(bufferLayer);
+        });
+
+        function task3() {
+          if (isSupermarketsVisible) {
+            mymap.removeLayer(supermarkets);
+            bufferedLayers.forEach((layer) => mymap.removeLayer(layer));
+            isSupermarketsVisible = false;
+          } else {
+            supermarkets.addTo(mymap);
+            bufferedLayers.forEach((layer) => layer.addTo(mymap));
+            isSupermarketsVisible = true;
+          }
+        }
+
+        var arlanda =
+              "{{ url_for('static', filename='img/arlanda.png') }}",
+            imageBounds = [
+              [59.668285383177675, 17.906131646938277],
+              [59.668155347981624, 17.984323406018582],
+              [59.62391148693897, 17.98208254574083],
+              [59.624131228284725, 17.90456296387735],
+            ];
+        var arlandaOverlay = L.imageOverlay(arlanda, imageBounds);; 
+        var isArlandaVisible = false; 
+
+        function task4() {
+          if (isArlandaVisible) {
+            mymap.removeLayer(arlandaOverlay);
+            isArlandaVisible = false;
+          } else {
+            arlandaOverlay.addTo(mymap);
+            isArlandaVisible = true;
+          }
+        }
+        
+      });
+    </script>
+  </body>
+</html>

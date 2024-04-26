@@ -1,0 +1,81 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>IIS space station lat lng</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.4/dist/leaflet.css"
+        integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
+        crossorigin="" />
+    <!-- Make sure you put this AFTER Leaflet's CSS -->
+    <script src="https://unpkg.com/leaflet@1.3.4/dist/leaflet.js"
+        integrity="sha512-nMMmRyTVoLYqjP9hrbed9S+FzjZHW5gY1TWCHA5ckwXZBadntCNs8kEqAWdrb9O7rxbCaA4lKTIWjDXZxflOcA=="
+        crossorigin=""></script>
+
+
+</head>
+
+<body>
+    <div class="container">
+        <h1>IIS-space station where is it? Updates every two second</h1>
+        <p>The station orbits the Earth once every 90 minutes</p>
+        <div id="mapid" style="height:380px"></div>
+        <div id="issDivData"></div>
+    </div>
+    <script>
+        //create the map add add ot to the div named mymap
+        let mymap = L.map('mapid').setView([0, 0], 2);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            minZoom: 1,
+            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+                '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+                'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+            id: 'mapbox.streets'
+        }).addTo(mymap);
+
+        
+        // https://api.wheretheiss.at/v1/satellites/25544  
+        //Create your own icon for a marker      
+        let satelliteIcon = L.icon({
+            iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/FP_Satellite_icon.svg/1200px-FP_Satellite_icon.svg.png',
+            iconSize: [32, 32],
+            //iconAnchor: [16, 30],
+            //popupAnchor: [0, -38]
+        });
+        //set starting position and icon for iis space station
+        let marker= L.marker([0, 0],{icon: satelliteIcon}).addTo(mymap);        
+        let iisDiv = document.getElementById("issDivData");
+        let iisInfo;
+        
+		// Info for getJSON: https://api.jquery.com/jquery.getjson/
+		
+        function showIIS() {
+            $.getJSON("https://api.wheretheiss.at/v1/satellites/25544", function (iisdata) {     
+              
+               
+                iisInfo = "Lat: " + iisdata.latitude + "<br>Lng: " + iisdata.longitude;                
+                iisInfo += "<br>Speed: " + iisdata.velocity.toFixed(0) + "km/h";
+                iisInfo += "<br>Altitude: " + iisdata.altitude.toFixed(0) + "km";
+                iisDiv.innerHTML = iisInfo;
+                
+                marker.setLatLng([iisdata.latitude, iisdata.longitude]);               
+                marker.bindPopup(iisInfo);
+                //set map view where the iis are
+                mymap.setView([iisdata.latitude, iisdata.longitude]);
+               
+            });
+        }
+        //show new position as a satellite marker of iss every two second.
+        setInterval(function () {
+            showIIS()
+        }, 2000)
+    </script>
+</body>
+
+</html>
