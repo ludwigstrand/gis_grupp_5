@@ -377,41 +377,46 @@
         }
 
         let markers = L.markerClusterGroup();
+        let fuelDataExists = false;
 
-        function fuelData () { fetch("{{ url_for('static', filename='fuel.geojson') }}")
-          .then(function (response) {
-            return response.json();
-          })
-          .then(function (data) {
-            L.geoJSON(data, {
-              onEachFeature: function (feature, layer) {
-                let marker = L.marker(
-                  [
-                    feature.geometry.coordinates[1],
-                    feature.geometry.coordinates[0],
-                  ],
-                  {
-                    title: feature.properties.name,
-                  }
-                ).bindPopup(
-                  "<h3>" +
-                    feature.properties.name +
-                    "</h3><p>" +
-                    feature.properties.brand_wiki +
-                    "</p>"
-                );
-                markers.addLayer(marker);
-              },
+        function fuelData() {
+          if (fuelDataExists) return;
+          fetch("{{ url_for('static', filename='fuel.geojson') }}")
+            .then(function (response) {
+              return response.json();
+            })
+            .then(function (data) {
+              L.geoJSON(data, {
+                onEachFeature: function (feature, layer) {
+                  let marker = L.marker(
+                    [
+                      feature.geometry.coordinates[1],
+                      feature.geometry.coordinates[0],
+                    ],
+                    {
+                      title: feature.properties.name,
+                    }
+                  ).bindPopup(
+                    "<h3>" +
+                      feature.properties.name +
+                      "</h3><p>" +
+                      feature.properties.brand_wiki +
+                      "</p>"
+                  );
+                  markers.addLayer(marker);
+                },
+              });
+              mymap.addLayer(markers);
+              fuelDataExists = true;
             });
-            mymap.addLayer(markers);
-          });
-           }
+        }
 
         let fuelStationsVisible = false;
 
         function task5() {
           if (fuelStationsVisible) {
             mymap.removeLayer(markers);
+
             fuelStationsVisible = false;
           } else {
             fuelData();
