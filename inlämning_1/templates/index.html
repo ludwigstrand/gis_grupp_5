@@ -43,6 +43,7 @@
     <script src="{{ url_for('static', filename='src/plugins/L.Control.Sidebar.js') }}"></script>
     <script src="https://ppete2.github.io/Leaflet.PolylineMeasure/Leaflet.PolylineMeasure.js"></script>
     <script src="{{ url_for('static', filename='supermarket.js') }}"></script>
+    <script src="{{ url_for('static', filename='fuel.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/@turf/turf@latest"></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
 
@@ -114,6 +115,8 @@
         document.getElementById("t5").addEventListener("click", task5);
         document.getElementById("t6").addEventListener("click", task6);
         document.getElementById("t7").addEventListener("click", task7);
+
+// TASK 1
 
         let polylineMeasure = L.control.polylineMeasure();
         let isPolylineMeasureAdded = false;
@@ -193,6 +196,8 @@
           }
           mymap.setView([60.668626389666734, 17.141998623027877], 13);
         }
+
+// TASK 2
 
         let brynäsArena = L.marker([60.691140545548706, 17.132425589966566]);
         let gävleSjukhus = L.marker([60.67817996669188, 17.118315342792286]);
@@ -307,6 +312,8 @@
           mymap.setView([60.668626389666734, 17.141998623027877], 13);
         }
 
+// TASK 3
+
         var supermarkets = L.geoJson(supermarket, {
           onEachFeature: function (feature, layer) {
             layer.bindPopup(feature.properties.name);
@@ -359,6 +366,8 @@
           mymap.setView([59.861741039906654, 17.6365959620707], 9);
         }
 
+// TASK 4
+
         var arlanda = "{{ url_for('static', filename='img/arlanda.png') }}",
           imageBounds = [
             [59.668285383177675, 17.906131646938277],
@@ -380,10 +389,31 @@
           mymap.setView([59.64672332874574, 17.933243213778354], 12);
         }
 
-        let fuelMarkers = L.markerClusterGroup();
-        let fuelDataExists = false;
+// TASK 5
 
-        function getFuelData() {
+        let fuelMarkers = L.markerClusterGroup();
+        let fuelStationsVisible = false;
+
+        let gasStations = L.geoJson(fuel, {
+          onEachFeature: function (feature, layer) {
+            layer.bindPopup(feature.properties.name);
+            fuelMarkers.addLayer(layer);
+          },
+        });
+        
+        function task5() {
+          if (fuelStationsVisible) {
+            mymap.removeLayer(fuelMarkers);
+            fuelStationsVisible = false;
+          } else {
+            mymap.addLayer(fuelMarkers);
+            fuelStationsVisible = true;
+          }
+          mymap.setView([59.333431618372906, 17.984770653694145], 11);
+        } 
+        
+/*         let fuelDataExists = false;
+         function getFuelData() {
           if (fuelDataExists) return;
           fetch("{{ url_for('static', filename='fuel.geojson') }}")
             .then(function (response) {
@@ -413,11 +443,9 @@
               mymap.addLayer(fuelMarkers);
               fuelDataExists = true;
             });
-        }
+        } 
 
-        let fuelStationsVisible = false;
-
-        function task5() {
+         function task5() {
           if (fuelStationsVisible) {
             mymap.removeLayer(markers);
 
@@ -427,7 +455,9 @@
             mymap.addLayer(markers);
             fuelStationsVisible = true;
           }
-        }
+        }  */
+
+// TASK 6
         const weatherChecks = {
           Stockholm: [59.345975619120296, 18.064205537694214],
           Uppsala: [59.873667333343136, 17.638209995978333],
