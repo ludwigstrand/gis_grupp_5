@@ -11,10 +11,10 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='src/css/bootstrap.css') }}"
     />
-    <link
+ <!--    <link
       rel="stylesheet"
       href="{{ url_for('static', filename='src/plugins/L.Control.Zoomslider.css') }}"
-    />
+    /> -->
     <link
       rel="stylesheet"
       href="{{ url_for('static', filename='src/plugins/L.Control.Sidebar.css') }}"
@@ -39,7 +39,7 @@
       src="{{ url_for('static', filename='src/turf.min.js') }}"
       charset="utf-8"
     ></script>
-    <script src="{{ url_for('static', filename='src/plugins/L.Control.Zoomslider.js') }}"></script>
+<!--     <script src="{{ url_for('static', filename='src/plugins/L.Control.Zoomslider.js') }}"></script> -->
     <script src="{{ url_for('static', filename='src/plugins/L.Control.Sidebar.js') }}"></script>
     <script src="https://ppete2.github.io/Leaflet.PolylineMeasure/Leaflet.PolylineMeasure.js"></script>
     <script src="{{ url_for('static', filename='supermarket.js') }}"></script>
@@ -57,10 +57,10 @@
         background: rgba(255, 255, 255, 0.7);
         padding: 10px;
         right: 0;
-        top: 0;
-        margin: 10px;
+        top: 0;    
         border-radius: 10px;
         min-height: 200px;
+        text-align: center;
       }
     </style>
   </head>
@@ -87,7 +87,7 @@
       var mymap;
       var lyrOSM;
       var mrkCurrentLocation;
-      var ctlZoomslider;
+    //  var ctlZoomslider;
       var ctlSlidebar;
       var sample = L.geoJson(sample);
       var sample1 = L.geoJson(sample1);
@@ -191,6 +191,7 @@
             polylineMeasure.addTo(mymap);
             isPolylineMeasureAdded = true;
           }
+          mymap.setView([60.668626389666734, 17.141998623027877], 13);
         }
 
         let brynäsArena = L.marker([60.691140545548706, 17.132425589966566]);
@@ -303,6 +304,7 @@
             ];
             task2PolylineMeasure.seed([coords]);
           }
+          mymap.setView([60.668626389666734, 17.141998623027877], 13);
         }
 
         var supermarkets = L.geoJson(supermarket, {
@@ -354,6 +356,7 @@
             bufferedLayers.forEach((layer) => layer.addTo(mymap));
             isSupermarketsVisible = true;
           }
+          mymap.setView([59.861741039906654, 17.6365959620707], 9);
         }
 
         var arlanda = "{{ url_for('static', filename='img/arlanda.png') }}",
@@ -374,6 +377,7 @@
             arlandaOverlay.addTo(mymap);
             isArlandaVisible = true;
           }
+          mymap.setView([59.64672332874574, 17.933243213778354], 12);
         }
 
         let fuelMarkers = L.markerClusterGroup();
