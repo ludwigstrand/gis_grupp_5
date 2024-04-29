@@ -121,8 +121,8 @@
 
         let polylineMeasure = L.control.polylineMeasure();
         let isPolylineMeasureAdded = false;
-        let södraKungsgatanLine = L.polyline([[60.68042267850974, 17.138054644217185],[60.66486780916494, 17.153920366133086]], { color: "red" }).bindPopup(
-          "<h3>Södra Kungsgatan</h3><img src= '{{ url_for('static', filename='img/skungsgatan.jpg') }}'width='250px'>"
+        let kungsgatanLine = L.polyline([[60.68042267850974, 17.138054644217185],[60.66486780916494, 17.153920366133086]], { color: "red" }).bindPopup(
+          "<h3>Kungsgatan</h3><img src= '{{ url_for('static', filename='img/kungsgatan.jpg') }}'width='250px'>"
         );
 
         let bockenPoint = L.marker([
@@ -191,13 +191,13 @@
             mymap.removeLayer(bockenPoint);
             mymap.removeLayer(polygon);
             mymap.removeControl(polylineMeasure);
-            mymap.removeLayer(södraKungsgatanLine);
+            mymap.removeLayer(kungsgatanLine);
             isPolylineMeasureAdded = false;
           } else {
             bockenPoint.addTo(mymap);
             polygon.addTo(mymap);
             polylineMeasure.addTo(mymap);
-            södraKungsgatanLine.addTo(mymap);
+            kungsgatanLine.addTo(mymap);
             isPolylineMeasureAdded = true;
             mymap.setView([60.668626389666734, 17.141998623027877], 13);
           }
