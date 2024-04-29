@@ -121,6 +121,9 @@
 
         let polylineMeasure = L.control.polylineMeasure();
         let isPolylineMeasureAdded = false;
+        let södraKungsgatanLine = L.polyline([[60.68042267850974, 17.138054644217185],[60.66486780916494, 17.153920366133086]], { color: "red" }).bindPopup(
+          "<h3>Södra Kungsgatan</h3><img src= '{{ url_for('static', filename='img/skungsgatan.jpg') }}'width='250px'>"
+        );
 
         let bockenPoint = L.marker([
           60.67498198310049, 17.144243649215575,
@@ -180,7 +183,7 @@
           [60.691218283964986, 17.223823322782778],
         ];
         var polygon = L.polygon(gävleHamn, { color: "red" }).bindPopup(
-          "<h3>Gävle Hamn</h3><img src= '{{ url_for('static', filename='img/gävlehamn.jpg') }}'width='150px'>"
+          "<h3>Gävle Hamn</h3><img src= '{{ url_for('static', filename='img/gävlehamn.jpg') }}'width='250px'>"
         );
 
         function task1() {
@@ -188,17 +191,19 @@
             mymap.removeLayer(bockenPoint);
             mymap.removeLayer(polygon);
             mymap.removeControl(polylineMeasure);
+            mymap.removeLayer(södraKungsgatanLine);
             isPolylineMeasureAdded = false;
           } else {
             bockenPoint.addTo(mymap);
             polygon.addTo(mymap);
             polylineMeasure.addTo(mymap);
+            södraKungsgatanLine.addTo(mymap);
             isPolylineMeasureAdded = true;
             mymap.setView([60.668626389666734, 17.141998623027877], 13);
           }
         }
 
-        // TASK 2
+        // TASK 2 TODO
 
         let brynäsArena = L.marker([60.691140545548706, 17.132425589966566]);
         let gävleSjukhus = L.marker([60.67817996669188, 17.118315342792286]);
@@ -230,7 +235,7 @@
             "<h1>Brynäs Arena</h1>" +
             "<p><strong>Location:</strong> Gävle, Sweden</p>" +
             "<p><strong>Description:</strong> Home of the Brynäs IF ice hockey club.</p>" +
-            "<img src='{{ url_for('static', filename='img/gävlearena.jpg') }}' width='250px'>";
+            "<img src='{{ url_for('static', filename='img/gävlearena.jpg') }}' width='350px'>";
           handleMarkerClick(brynäsArena, content);
         });
         gävleSjukhus.addEventListener("click", function () {
@@ -238,7 +243,7 @@
             "<h1>Gävle Sjukhus</h1>" +
             "<p><strong>Location:</strong> Gävle, Sweden</p>" +
             "<p><strong>Description:</strong> Gävle Hospital is a hospital in Gävle, Sweden.</p>" +
-            "<img src='{{ url_for('static', filename='img/gävlesjukhus.jpg') }}' width='250px'>";
+            "<img src='{{ url_for('static', filename='img/gävlesjukhus.jpg') }}' width='350px'>";
 
           handleMarkerClick(gävleSjukhus, content);
         });
@@ -247,7 +252,7 @@
             "<h1>Gävle Konserthus</h1>" +
             "<p><strong>Location:</strong> Gävle, Sweden</p>" +
             "<p><strong>Description:</strong> Gävle Concert Hall is a concert hall in Gävle, Sweden.</p>" +
-            "<img src='{{ url_for('static', filename='img/gävlekonserthus.jpg') }}' width='250px'>";
+            "<img src='{{ url_for('static', filename='img/gävlekonserthus.jpg') }}' width='350px'>";
 
           handleMarkerClick(gävleKonserthus, content);
         });
@@ -256,7 +261,7 @@
             "<h1>Gävle Gasklockorna</h1>" +
             "<p><strong>Location:</strong> Gävle, Sweden</p>" +
             "<p><strong>Description:</strong> Gävle Gas Works is a former gasworks in Gävle, Sweden.</p>" +
-            "<img src='{{ url_for('static', filename='img/gävleklockorna.jpg') }}' width='250px'>";
+            "<img src='{{ url_for('static', filename='img/gävleklockorna.jpg') }}' width='350px'>";
 
           handleMarkerClick(gasKlockorna, content);
         });
@@ -265,7 +270,7 @@
             "<h1>Gävle Hemlingby Stugan</h1>" +
             "<p><strong>Location:</strong> Gävle, Sweden</p>" +
             "<p><strong>Description:</strong> Hemlingby is a district in Gävle, Sweden.</p>" +
-            "<img src='{{ url_for('static', filename='img/gävlehemlingbystuga.jpg') }}' width='250px'>";
+            "<img src='{{ url_for('static', filename='img/gävlehemlingbystuga.jpg') }}' width='350px'>";
 
           handleMarkerClick(gävleHemlingbyStuga, content);
         });
