@@ -10,8 +10,8 @@ def cluster():
     data = pd.read_csv('static/school_locations.csv')
     
     X = data[['xcoord', 'ycoord']].values 
-    k = 5  
-    kmeans = KMeans(n_clusters=k, random_state=0).fit(X)
+    k = 5
+    kmeans = KMeans(n_clusters=k, init = 'k-means++', random_state = 42, n_init = 10).fit(X)
     data['cluster'] = kmeans.labels_  
 
     centroids = kmeans.cluster_centers_.tolist()
