@@ -560,6 +560,45 @@
           popupAnchor: [0, -12],
         });
 
+        let clusterIcons = {
+          "0" : L.icon({
+            iconUrl: "static/img/cluster_0.png",
+            iconSize: [24, 24],
+            iconAnchor: [12, 12],
+            popupAnchor: [0, -12],
+          }),
+          "1" : L.icon({
+            iconUrl: "static/img/cluster_1.png",
+            iconSize: [24, 24],
+            iconAnchor: [12, 12],
+            popupAnchor: [0, -12],
+          }),
+          "2" : L.icon({
+            iconUrl: "static/img/cluster_2.png",
+            iconSize: [24, 24],
+            iconAnchor: [12, 12],
+            popupAnchor: [0, -12],
+          }),
+          "3" : L.icon({
+            iconUrl: "static/img/cluster_3.png",
+            iconSize: [24, 24],
+            iconAnchor: [12, 12],
+            popupAnchor: [0, -12],
+          }),
+          "4" : L.icon({
+            iconUrl: "static/img/cluster_4.png",
+            iconSize: [24, 24],
+            iconAnchor: [12, 12],
+            popupAnchor: [0, -12],
+          }),
+          "5" : L.icon({
+            iconUrl: "static/img/cluster_5.png",
+            iconSize: [24, 24],
+            iconAnchor: [12, 12],
+            popupAnchor: [0, -12],
+          }),
+        }
+
         let schoolMarkers = L.layerGroup();
         let schoolDataExists = false;
 
@@ -570,7 +609,7 @@
             .then((data) => {
               data.clusters.forEach((cluster) => {
                 var marker = L.marker([cluster.ycoord, cluster.xcoord], {
-                  icon: clusterIcon,
+                  icon: clusterIcons[cluster.cluster],
                 });
                 marker.bindPopup("Cluster: " + cluster.cluster + "<br>" + cluster.Name);
                 schoolMarkers.addLayer(marker);
