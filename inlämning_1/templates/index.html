@@ -397,14 +397,22 @@
 
         // TASK 5
 
+        var fuelIcon = L.icon({
+                    iconUrl: "{{ url_for('static', filename='img/fuel-station.png') }}",
+                    iconSize:     [42, 47],
+                    iconAnchor:   [32, 37],
+                    popupAnchor:  [0, -30] 
+                });
+
         let fuelMarkers = L.markerClusterGroup();
         let fuelStationsVisible = false;
 
         L.geoJson(fuel, {
           onEachFeature: function (feature, layer) {
-            layer.bindPopup("<h3>" + feature.properties.name + "</h3>");
+            let marker = L.marker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], {icon: fuelIcon});
+            marker.bindPopup("<h3>" + feature.properties.name + "</h3>");
 
-            fuelMarkers.addLayer(layer);
+            fuelMarkers.addLayer(marker);
           },
         });
 
@@ -546,6 +554,8 @@
             mymap.setView([59.90219238254175, 17.173699305951864], 8);
           }
         }
+
+        // TASK 7
 
         let centroidIcon = L.icon({
           iconUrl: "static/img/centroid.png",
