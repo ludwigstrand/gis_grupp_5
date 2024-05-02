@@ -54,14 +54,14 @@
 
       #side-bar {
         position: absolute;
+        height: 100vh;
         z-index: 1000;
-        background: rgba(255, 255, 255, 0.7);
-        padding: 10px;
+        background: rgba(193, 201, 193, 0.7);
         right: 0;
         top: 0;
-        border-radius: 10px;
-        min-height: 200px;
+        border-left: 2px solid black;
         text-align: center;
+        font-family: cursive;
       }
     </style>
   </head>
@@ -69,15 +69,17 @@
     <div id="mapdiv" class="col-md-9"></div>
 
     <div id="side-bar" class="col-md-3">
-      <h2>Grupp 5</h2>
-      <button id="t1">Task 1</button>
-      <button id="t2">Task 2</button>
-      <button id="t3">Task 3</button>
-      <button id="t4">Task 4</button>
-      <button id="t5">Task 5</button>
-      <button id="t6">Task 6</button>
-      <button id="t7">Task 7</button>
-      <button id="overview">Översikt</button>
+      <h2 style="margin-bottom: 20px;">Grupp 5</h2>
+      <div class="d-grid gap-2 col-6 mx-auto">
+        <button id="t1">Task 1</button>
+        <button id="t2">Task 2</button>
+        <button id="t3">Task 3</button>
+        <button id="t4">Task 4</button>
+        <button id="t5">Task 5</button>
+        <button id="t6">Task 6</button>
+        <button id="t7">Task 7</button>
+        <button id="overview">Översikt</button>
+      </div>
     </div>
 
     <div id="clusters"></div>
