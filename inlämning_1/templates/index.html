@@ -56,7 +56,7 @@
         top: 0;
         border-left: 2px solid black;
         text-align: center;
-        font-family: Georgia, 'Times New Roman', Times, serif;
+        font-family: Georgia, "Times New Roman", Times, serif;
       }
     </style>
   </head>
@@ -64,7 +64,7 @@
     <div id="mapdiv" class="col-md-9"></div>
 
     <div id="side-bar" class="col-md-3">
-      <h2 style="margin-bottom: 20px;">Grupp 5</h2>
+      <h2 style="margin-bottom: 20px">Grupp 5</h2>
       <div class="d-grid gap-2 col-6 mx-auto">
         <button id="t1">Task 1</button>
         <button id="t2">Task 2</button>
@@ -109,7 +109,13 @@
 
         let polylineMeasure = L.control.polylineMeasure();
         let isPolylineMeasureAdded = false;
-        let kungsgatanLine = L.polyline([[60.68042267850974, 17.138054644217185],[60.66486780916494, 17.153920366133086]], { color: "red" }).bindPopup(
+        let kungsgatanLine = L.polyline(
+          [
+            [60.68042267850974, 17.138054644217185],
+            [60.66486780916494, 17.153920366133086],
+          ],
+          { color: "red" }
+        ).bindPopup(
           "<h3>Kungsgatan</h3><img src= '{{ url_for('static', filename='img/kungsgatan.jpg') }}'width='250px'>"
         );
 
@@ -191,7 +197,7 @@
           }
         }
 
-        // TASK 2 
+        // TASK 2
 
         let brynäsArena = L.marker([60.691140545548706, 17.132425589966566]);
         let gävleSjukhus = L.marker([60.67817996669188, 17.118315342792286]);
@@ -207,7 +213,7 @@
           if (lastClickedMarker === marker) {
             if (sidebar.isVisible()) {
               sidebar.hide();
-              sidebar.setContent(""); 
+              sidebar.setContent("");
             } else {
               sidebar.setContent(content);
               sidebar.show();
@@ -387,18 +393,24 @@
         // TASK 5
 
         var fuelIcon = L.icon({
-                    iconUrl: "{{ url_for('static', filename='img/fuel-station.png') }}",
-                    iconSize:     [42, 47],
-                    iconAnchor:   [32, 37],
-                    popupAnchor:  [0, -30] 
-                });
+          iconUrl: "{{ url_for('static', filename='img/fuel-station.png') }}",
+          iconSize: [42, 47],
+          iconAnchor: [32, 37],
+          popupAnchor: [0, -30],
+        });
 
         let fuelMarkers = L.markerClusterGroup();
         let fuelStationsVisible = false;
 
         L.geoJson(fuel, {
           onEachFeature: function (feature) {
-            let marker = L.marker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], {icon: fuelIcon});
+            let marker = L.marker(
+              [
+                feature.geometry.coordinates[1],
+                feature.geometry.coordinates[0],
+              ],
+              { icon: fuelIcon }
+            );
             marker.bindPopup("<h3>" + feature.properties.name + "</h3>");
 
             fuelMarkers.addLayer(marker);
@@ -513,37 +525,37 @@
         });
 
         let clusterIcons = {
-          "0" : L.icon({
+          0: L.icon({
             iconUrl: "static/img/cluster_0.png",
             iconSize: [24, 24],
             iconAnchor: [12, 12],
             popupAnchor: [0, -12],
           }),
-          "1" : L.icon({
+          1: L.icon({
             iconUrl: "static/img/cluster_1.png",
             iconSize: [24, 24],
             iconAnchor: [12, 12],
             popupAnchor: [0, -12],
           }),
-          "2" : L.icon({
+          2: L.icon({
             iconUrl: "static/img/cluster_2.png",
             iconSize: [24, 24],
             iconAnchor: [12, 12],
             popupAnchor: [0, -12],
           }),
-          "3" : L.icon({
+          3: L.icon({
             iconUrl: "static/img/cluster_3.png",
             iconSize: [24, 24],
             iconAnchor: [12, 12],
             popupAnchor: [0, -12],
           }),
-          "4" : L.icon({
+          4: L.icon({
             iconUrl: "static/img/cluster_4.png",
             iconSize: [24, 24],
             iconAnchor: [12, 12],
             popupAnchor: [0, -12],
           }),
-        }
+        };
 
         let schoolMarkers = L.layerGroup();
         let schoolDataExists = false;
@@ -557,14 +569,16 @@
                 var marker = L.marker([cluster.ycoord, cluster.xcoord], {
                   icon: clusterIcons[cluster.cluster],
                 });
-                marker.bindPopup("Cluster: " + cluster.cluster + "<br>" + cluster.Name);
+                marker.bindPopup(
+                  "Cluster: " + cluster.cluster + "<br>" + cluster.Name
+                );
                 schoolMarkers.addLayer(marker);
               });
               data.centroids.forEach((centroid, index) => {
                 var marker = L.marker([centroid[1], centroid[0]], {
                   icon: centroidIcon,
                 });
-                marker.bindPopup("Centroid: " + (index));
+                marker.bindPopup("Centroid: " + index);
                 schoolMarkers.addLayer(marker);
               });
               schoolDataExists = true;
