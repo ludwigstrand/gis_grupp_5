@@ -76,7 +76,7 @@
       </div>
     </div>
 
-    <div id="clusters"></div>
+    <!-- <div id="clusters"></div> -->
 
     <div id="sidebar"><h1>Sidebar</h1></div>
 
@@ -399,7 +399,7 @@
         let fuelStationsVisible = false;
 
         L.geoJson(fuel, {
-          onEachFeature: function (feature, layer) {
+          onEachFeature: function (feature) {
             let marker = L.marker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], {icon: fuelIcon});
             marker.bindPopup("<h3>" + feature.properties.name + "</h3>");
 

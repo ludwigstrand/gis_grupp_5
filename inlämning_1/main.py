@@ -14,11 +14,9 @@ def cluster():
     kmeans = KMeans(n_clusters=k, init = 'k-means++', random_state = 42, n_init = 10).fit(X)
     data['cluster'] = kmeans.labels_  
 
-    centroids = kmeans.cluster_centers_.tolist()
-
     response_data = {
         'clusters': data.to_dict(orient='records'),
-        'centroids': centroids
+        'centroids': kmeans.cluster_centers_.tolist()
     }
     return jsonify(response_data)
 
