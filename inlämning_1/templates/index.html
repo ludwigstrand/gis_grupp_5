@@ -11,10 +11,6 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='src/css/bootstrap.css') }}"
     />
-    <!--    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='src/plugins/L.Control.Zoomslider.css') }}"
-    /> -->
     <link
       rel="stylesheet"
       href="{{ url_for('static', filename='src/plugins/L.Control.Sidebar.css') }}"
@@ -39,7 +35,6 @@
       src="{{ url_for('static', filename='src/turf.min.js') }}"
       charset="utf-8"
     ></script>
-    <!--     <script src="{{ url_for('static', filename='src/plugins/L.Control.Zoomslider.js') }}"></script> -->
     <script src="{{ url_for('static', filename='src/plugins/L.Control.Sidebar.js') }}"></script>
     <script src="https://ppete2.github.io/Leaflet.PolylineMeasure/Leaflet.PolylineMeasure.js"></script>
     <script src="{{ url_for('static', filename='supermarket.js') }}"></script>
@@ -61,7 +56,7 @@
         top: 0;
         border-left: 2px solid black;
         text-align: center;
-        font-family: cursive;
+        font-family: Georgia, 'Times New Roman', Times, serif;
       }
     </style>
   </head>
@@ -78,7 +73,6 @@
         <button id="t5">Task 5</button>
         <button id="t6">Task 6</button>
         <button id="t7">Task 7</button>
-        <button id="overview">Översikt</button>
       </div>
     </div>
 
@@ -89,11 +83,6 @@
     <script>
       var mymap;
       var lyrOSM;
-      var mrkCurrentLocation;
-      //  var ctlZoomslider;
-      var ctlSlidebar;
-      var sample = L.geoJson(sample);
-      var sample1 = L.geoJson(sample1);
 
       $(document).ready(function () {
         mymap = L.map("mapdiv", {
@@ -117,7 +106,6 @@
         document.getElementById("t5").addEventListener("click", task5);
         document.getElementById("t6").addEventListener("click", task6);
         document.getElementById("t7").addEventListener("click", task7);
-        document.getElementById("overview").addEventListener("click", overview);
 
         // TASK 1
 
@@ -221,6 +209,7 @@
           if (lastClickedMarker === marker) {
             if (sidebar.isVisible()) {
               sidebar.hide();
+              sidebar.setContent(""); 
             } else {
               sidebar.setContent(content);
               sidebar.show();
@@ -429,51 +418,6 @@
           }
         }
 
-        /*         let fuelDataExists = false;
-         function getFuelData() {
-          if (fuelDataExists) return;
-          fetch("{{ url_for('static', filename='fuel.geojson') }}")
-            .then(function (response) {
-              return response.json();
-            })
-            .then(function (data) {
-              L.geoJSON(data, {
-                onEachFeature: function (feature, layer) {
-                  let marker = L.marker(
-                    [
-                      feature.geometry.coordinates[1],
-                      feature.geometry.coordinates[0],
-                    ],
-                    {
-                      title: feature.properties.name,
-                    }
-                  ).bindPopup(
-                    "<h3>" +
-                      feature.properties.name +
-                      "</h3><p>" +
-                      feature.properties.brand_wiki +
-                      "</p>"
-                  );
-                  cityWeatherMarkers.addLayer(marker);
-                },
-              });
-              mymap.addLayer(fuelMarkers);
-              fuelDataExists = true;
-            });
-        } 
-
-         function task5() {
-          if (fuelStationsVisible) {
-            mymap.removeLayer(cityWeatherMarkers);
-
-            fuelStationsVisible = false;
-          } else {
-            getFuelData();
-            mymap.addLayer(cityWeatherMarkers);
-            fuelStationsVisible = true;
-          }
-        }  */
-
         // TASK 6
 
         const weatherChecks = {
@@ -482,16 +426,15 @@
           Gävle: [60.675666610668536, 17.149357702338683],
           Falun: [60.61664051976568, 15.630614618411661],
           Borlänge: [60.49635077825705, 15.436401947832758],
-          // Örebro: [59.274714829660354, 15.214125446638887],
-          // Västerås: [59.648240376642626, 16.53841770027237],
-          // Avesta: [60.15714747636273, 16.17549751222809],
         };
 
         let weatherDataExists = false;
         let cityWeatherMarkers = {};
+        let sidebarWeather = "";
 
         function fetchWeatherData() {
           if (weatherDataExists) return;
+          sidebarWeather = "<h2>Weather forecast 7 days:</h2>";
           Object.entries(weatherChecks).forEach(([city, coords]) => {
             const [latitude, longitude] = coords;
             const currentTempUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&hourly=temperature_2m`;
@@ -518,12 +461,14 @@
                 });
 
                 let forecastMessage = `<b>${city}</b><br>Current Temperature: ${currentTemp} °C<br>`;
+                sidebarWeather += `<br><h4>${city}:</h4>`;
 
                 Object.keys(dailyAverages).forEach((date) => {
                   const avgTemp = (
                     dailyAverages[date].sum / dailyAverages[date].count
                   ).toFixed(1);
                   forecastMessage += `${date}: Average Temp: ${avgTemp} °C<br>`;
+                  sidebarWeather += `${date}: Average Temp: ${avgTemp} °C<br>`;
                 });
 
                 cityWeatherMarkers[city] = L.marker([
@@ -531,6 +476,7 @@
                   longitude,
                 ]).addTo(mymap);
                 cityWeatherMarkers[city].bindPopup(forecastMessage);
+                sidebar.setContent(sidebarWeather);
                 weatherDataExists = true;
               })
               .catch((error) =>
@@ -546,14 +492,16 @@
             Object.keys(cityWeatherMarkers).forEach((city) => {
               mymap.removeLayer(cityWeatherMarkers[city]);
             });
+            sidebar.hide();
             weatherVisible = false;
           } else {
             fetchWeatherData();
             Object.keys(cityWeatherMarkers).forEach((city) => {
               cityWeatherMarkers[city].addTo(mymap);
             });
+            sidebar.show();
             weatherVisible = true;
-            mymap.setView([59.90219238254175, 17.173699305951864], 8);
+            mymap.setView([59.83094377290505, 15.667407271955046], 8);
           }
         }
 
@@ -637,10 +585,6 @@
             schoolsVisible = true;
             mymap.setView([59.33485026109351, 18.087739931077152], 11);
           }
-        }
-
-        function overview() {
-          mymap.setView([59.90219238254175, 17.173699305951864], 8);
         }
       });
     </script>
